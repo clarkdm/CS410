@@ -33,7 +33,9 @@ open import CS410-Prelude
 data Nat : Set where
   zero : Nat
   suc  : Nat -> Nat
-{-# BUILTIN NATURAL Nat #-} -- means we can write 2 for suc (suc zero)
+
+
+ -- means we can write 2 for suc (suc zero)
 
 -- TERMINOLOGY Set and "type". By "type", I mean anything you can put to
 -- the right of : to classify the thing to the left of :, so "Set" is a
@@ -70,9 +72,18 @@ mySet = Set
 -- the way addition works has a significant impact on types.
 ----------------------------------------------------------------------------
 
+_+N1_ : Nat -> Nat -> Nat
+zero +N1 zero = zero
+zero +N1 n = n
+suc m +N1 n = suc(m +N1 n)
+infixr 3 _+N1_
+
+
 _+N_ : Nat -> Nat -> Nat
-m +N zero = zero
-m +N suc n = {!!}
+zero +N zero = zero
+zero +N suc n = suc n
+suc m +N zero = suc m
+suc m +N suc n = suc(suc(m +N n))
 infixr 3 _+N_
 
 -- NOTATION: a name _+N_ with underscores in it serves double duty.
@@ -83,16 +94,18 @@ infixr 3 _+N_
 
 -- When you think you're done, uncomment these unit tests, e.g., by turning
 -- {-+} to {-(-} and {+-} to {-)-}. They should typecheck ok.
-{-+}
+
+{-# BUILTIN NATURAL Nat #-}
+{-# BUILTIN ZERO zero #-}
+{-# BUILTIN SUC suc #-}
+{-(-}
 testPlus1 : 2 +N 2 == 4
 testPlus1 = refl
-
 testPlus2 : 0 +N 5 == 5
 testPlus2 = refl
-
 testPlus3 : 5 +N 0 == 5
 testPlus3 = refl
-{+-}
+{-)-}
 
 
 ----------------------------------------------------------------------------
@@ -103,29 +116,26 @@ testPlus3 = refl
 ----------------------------------------------------------------------------
 
 _*N_ : Nat -> Nat -> Nat
-m *N n  =  {!!}
+zero *N n = zero
+suc m *N zero = zero
+m *N suc n = m +N (m *N n)
 infixr 4 _*N_
 
 -- unit tests
-{-+}
+{-(-}
 testMult1 : 2 *N 2 == 4
 testMult1 = refl
-
 testMult2 : 0 *N 5 == 0
 testMult2 = refl
-
 testMult3 : 5 *N 0 == 0
 testMult3 = refl
-
 testMult4 : 1 *N 5 == 5
 testMult4 = refl
-
 testMult5 : 5 *N 1 == 5
 testMult5 = refl
-
 testMult6 : 2 *N 3 == 6
 testMult6 = refl
-{+-}
+{-)-}
 
 
 ----------------------------------------------------------------------------
@@ -136,16 +146,18 @@ testMult6 = refl
 ----------------------------------------------------------------------------
 
 _-N1_ : Nat -> Nat -> Nat
-m -N1 n  =  {!!}
+zero -N1 n = zero
+suc m -N1 zero = suc m
+suc m -N1 suc n = m -N1 n
+
 
 -- unit tests
-{-+}
+{-(-}
 testSubN1-1 : 4 -N1 2 == 2
 testSubN1-1 = refl
-
 testSubN1-2 : 42 -N1 37 == 5
 testSubN1-2 = refl
-{+-}
+{-)-}
 
 ----------------------------------------------------------------------------
 -- "Maybe" allows for the possibility of errors
@@ -161,25 +173,27 @@ data Maybe (X : Set) : Set where
 
 
 ----------------------------------------------------------------------------
--- ??? 1.4 subtraction II (score: ? / 1)
+-- ??? 1.4 subtraction II (score: ? / 2)
 --
 -- Implement subtraction with a type acknowledging that failure can happen.
+-- You should use the "with" construct to process the recursive call.
 ----------------------------------------------------------------------------
 
 _-N2_ : Nat -> Nat -> Maybe Nat
-m -N2 n  =  {!!}
+zero -N2 zero = yes zero
+zero -N2 suc n = no
+suc m -N2 zero = yes (suc m)
+suc m -N2 suc n = m -N2 n   
 
 -- unit tests
-{-+}
+{-(-}
 testSubN2-1 : 4 -N2 2 == yes 2
 testSubN2-1 = refl
-
 testSubN2-2 : 42 -N2 37 == yes 5
 testSubN2-2 = refl
-
 testSubN2-3 : 37 -N2 42 == no
 testSubN2-3 = refl
-{+-}
+{-)-}
 
 
 ----------------------------------------------------------------------------
@@ -205,7 +219,11 @@ suc m  N>=  suc n  =  m N>= n  -- the way to compare successors
 ----------------------------------------------------------------------------
 
 _-N3_-:_ : (m : Nat) -> (n : Nat) -> m N>= n -> Nat
-m -N3 n -: p  = {!!}
+m -N3 zero -: <> = m
+zero -N3 suc n -: ()
+suc m -N3 suc n -: p = m -N3 n -: p
+
+
 
 -- DON'T PANIC about the syntax (m : Nat) -> (n : Nat) ->
 -- The type of both those arguments is Nat. However, when we write the
@@ -219,13 +237,12 @@ m -N3 n -: p  = {!!}
 -- HINT: you will need to learn about the "absurd" pattern, written ().
 
 -- unit tests
-{-+}
+{-(-}
 testSubN3-1 : 4 -N3 2 -: <> == 2
 testSubN3-1 = refl
-
 testSubN3-2 : 42 -N3 37 -: <> == 5
 testSubN3-2 = refl
-{+-}
+{-)-}
 
 -- Uncomment this test and try to fill in the missing bits to make it work.
 {-+}
@@ -266,7 +283,8 @@ infixr 3 _::_
 ----------------------------------------------------------------------------
 
 _+L_ : {X : Set} -> List X -> List X -> List X
-xs +L ys  =  {!!}
+[] +L ys = ys
+(x :: xs) +L ys = x :: xs +L ys
 infixr 3 _+L_
 
 -- DON'T PANIC about the "curly braces" syntax. It's very similar to the
@@ -285,11 +303,11 @@ infixr 3 _+L_
 -- parts.
 
 -- unit test
-{-+}
+{-(-}
 testConcL  :   (0 :: 1 :: 2 :: []) +L (3 :: 4 :: [])
            ==   0 :: 1 :: 2 ::         3 :: 4 :: []
 testConcL = refl
-{+-}
+{-)-}
 
 
 ----------------------------------------------------------------------------
@@ -304,43 +322,49 @@ testConcL = refl
 ----------------------------------------------------------------------------
 
 mis-take : {X : Set} -> Nat -> List X -> List X
-mis-take n xs  =  {!!}
+mis-take zero [] = []
+mis-take (suc n) [] = [] 
+mis-take zero (x :: xs) = []
+mis-take (suc n) (x :: xs) = x :: mis-take n xs
 
 -- unit test
-{-+}
+{-(-}
 testMisTake  :   mis-take 3 (0 :: 1 :: 2 :: 3 :: 4 :: [])
              ==              0 :: 1 :: 2 :: []
 testMisTake = refl
-{+-}
+{-)-}
 
 
 
 ----------------------------------------------------------------------------
--- ??? 1.8 take II (score: ? / 2)
+-- ??? 1.8 take II (score: ? / 1)
 --
 -- Fix mis-take by acknowledging the possibility of error. Ensure that your
 -- function returns "yes" with a list of exactly the right length if
--- possible, or says "no". You may need to use the "with" construct to
--- inspect the result of the recursive call.
+-- possible, or says "no".
 ----------------------------------------------------------------------------
 
 may-take : {X : Set} -> Nat -> List X -> Maybe (List X)
-may-take n xs  =  {!!}
+may-take zero [] = yes []
+may-take zero (x :: xs) = yes []
+may-take (suc n) [] = no
+may-take (suc n) (x :: xs) with may-take n xs
+may-take (suc n) (x :: xs) | yes ys = yes ( x :: ys)
+may-take (suc n) (x :: xs) | no = no
+-- HINT: it's really rather a lot like _-N2_
 
 -- unit test
-{-+}
+{-(-}
 testMayTake1  :   may-take 3 (0 :: 1 :: 2 :: 3 :: 4 :: [])
               ==         yes (0 :: 1 :: 2 :: [])
 testMayTake1 = refl
-
 testMayTake2  :   may-take 6 (0 :: 1 :: 2 :: 3 :: 4 :: [])
               ==  no
 testMayTake2 = refl
-
 testMayTake3  :   may-take 5 (0 :: 1 :: 2 :: 3 :: 4 :: [])
               ==         yes (0 :: 1 :: 2 :: 3 :: 4 :: [])
 testMayTake3 = refl
-{+-}
+{-)-}
 
 
 ----------------------------------------------------------------------------
@@ -350,13 +374,14 @@ testMayTake3 = refl
 -- Show how to compute the length of a list.
 
 length : {X : Set} -> List X -> Nat
-length xs = {!!}
+length [] = zero
+length (x :: xs) = suc(length xs)
 
 -- unit test
-{-+}
+{-(-}
 testLength  :  length (0 :: 1 :: 2 :: 3 :: 4 :: [])  ==  5
 testLength  =  refl
-{+-}
+{-)-}
 
 
 ----------------------------------------------------------------------------
@@ -396,7 +421,12 @@ data Vec (X : Set) : (n : Nat) -> Set where -- n's not in scope after "where"
 -- When we concatenate vectors, we add their lengths.
 
 _+V_ : {X : Set}{m n : Nat} -> Vec X m -> Vec X n -> Vec X (m +N n)
-xs +V ys  = {!!}
+[] +V [] = []
+[] +V y :: ys = y :: ys
+(x :: xs) +V [] = x :: xs
+(x :: xs) +V y :: ys = {!!}
+
+
 infixr 3 _+V_
 
 -- NOTICE that even though m and n are numbers, not types, they can
@@ -409,11 +439,11 @@ infixr 3 _+V_
 -- here fits together properly.
 
 -- unit test
-{-+}
+{-(-}
 testConcV  :   (0 :: 1 :: 2 :: []) +V (3 :: 4 :: [])
            ==   0 :: 1 :: 2 ::         3 :: 4 :: []
 testConcV = refl
-{+-}
+{-)-}
 
 
 ----------------------------------------------------------------------------
@@ -430,7 +460,6 @@ take n p xs = {!!}
 testTake1  :  take 3 <> (0 :: 1 :: 2 :: 3 :: 4 :: [])
               ==         0 :: 1 :: 2 :: []
 testTake1 = refl
-
 testTake3  :  take 5 <> (0 :: 1 :: 2 :: 3 :: 4 :: [])
               ==         0 :: 1 :: 2 :: 3 :: 4 :: []
 testTake3 = refl
@@ -493,4 +522,4 @@ testChop = refl
 -- that we can look at vectors as being made by [] and _::_, but now we
 -- can PROGRAM new ways of looking: vectors as made by _+V_.
 
--- Welcome to the new programming.
+-- Welcome to the new programmin
