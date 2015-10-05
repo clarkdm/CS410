@@ -1,4 +1,4 @@
-module Ex1 where
+module Ex1 where -- 13/15
 
 ----------------------------------------------------------------------------
 -- EXERCISE 1 -- NUMBERS, LISTS, VECTORS (a driving lesson)
@@ -64,7 +64,7 @@ mySet = Set
 
 
 ----------------------------------------------------------------------------
--- ??? 1.1 addition (score: ? / 1)
+-- ??? 1.1 addition (score: 1 / 1)
 --
 -- There are lots of ways to add two numbers together. Do you inspect the
 -- first? Do you inspect the second? Make sure you get the correct numerical
@@ -73,12 +73,12 @@ mySet = Set
 ----------------------------------------------------------------------------
 
 _+N1_ : Nat -> Nat -> Nat
-zero +N1 zero = zero
+zero +N1 zero = zero   -- Conor: redundant
 zero +N1 n = n
 suc m +N1 n = suc(m +N1 n)
 infixr 3 _+N1_
 
-
+-- Conor: fine, but quite redundant and bad for +V
 _+N_ : Nat -> Nat -> Nat
 zero +N zero = zero
 zero +N suc n = suc n
@@ -110,15 +110,15 @@ testPlus3 = refl
 
 
 ----------------------------------------------------------------------------
--- ??? 1.2 multiplication (score: ? / 1)
+-- ??? 1.2 multiplication (score: 1 / 1)
 --
 -- There's also a lot of choice in how to multiply, but they all rely on
 -- repeated addition. Find a way to do it.
 ----------------------------------------------------------------------------
 
 _*N_ : Nat -> Nat -> Nat
-zero *N n = zero
-suc m *N zero = zero
+zero *N n = zero        -- Conor: this and..
+suc m *N zero = zero    -- ..this can be combined
 m *N suc n = m +N (m *N n)
 infixr 4 _*N_
 
@@ -140,7 +140,7 @@ testMult6 = refl
 
 
 ----------------------------------------------------------------------------
--- ??? 1.3 subtraction I (score: ? / 1)
+-- ??? 1.3 subtraction I (score: 1 / 1)
 --
 -- Subtraction is a nuisance. How do you take a big number away from a
 -- smaller one? Give the closest answer you can to the correct answer.
@@ -174,16 +174,16 @@ data Maybe (X : Set) : Set where
 
 
 ----------------------------------------------------------------------------
--- ??? 1.4 subtraction II (score: ? / 2)
+-- ??? 1.4 subtraction II (score: 1 / 1)
 --
 -- Implement subtraction with a type acknowledging that failure can happen.
 -- You should use the "with" construct to process the recursive call.
 ----------------------------------------------------------------------------
 
 _-N2_ : Nat -> Nat -> Maybe Nat
-zero -N2 zero = yes zero
+zero -N2 zero = yes zero        -- Conor: this line...
 zero -N2 suc n = no
-suc m -N2 zero = yes (suc m)
+suc m -N2 zero = yes (suc m)    -- ... and this can be one
 suc m -N2 suc n = m -N2 n   
 
 -- unit tests
@@ -213,7 +213,7 @@ suc m  N>=  suc n  =  m N>= n  -- the way to compare successors
 
 
 ----------------------------------------------------------------------------
--- ??? 1.5 subtraction III (score: ? / 1)
+-- ??? 1.5 subtraction III (score: 1 / 1)
 --
 -- Implement subtraction with explicit evidence that the inputs are
 -- amenable to subtraction.
@@ -280,12 +280,12 @@ infixr 3 _::_
 
 
 ----------------------------------------------------------------------------
--- ??? 1.6 concatenation (score: ? / 1)
+-- ??? 1.6 concatenation (score: 1 / 1)
 ----------------------------------------------------------------------------
 
 _+L_ : {X : Set} -> List X -> List X -> List X
 [] +L ys = ys
-xs +L [] = xs
+xs +L [] = xs  -- Conor: redundant
 (x :: xs) +L ys = x :: xs +L ys
 infixr 3 _+L_
 
@@ -313,7 +313,7 @@ testConcL = refl
 
 
 ----------------------------------------------------------------------------
--- ??? 1.7 take I (score: ? / 1)
+-- ??? 1.7 take I (score: 1 / 1)
 --
 -- Given a number, n, and a list, xs, compute the first n elements of xs.
 -- Of course, there will be a tiny little problem if the caller asks for
@@ -324,7 +324,7 @@ testConcL = refl
 ----------------------------------------------------------------------------
 
 mis-take : {X : Set} -> Nat -> List X -> List X
-mis-take zero [] = []
+mis-take zero [] = []          -- Conor: more redundancy
 mis-take (suc n) [] = [] 
 mis-take zero (x :: xs) = []
 mis-take (suc n) (x :: xs) = x :: mis-take n xs
@@ -339,7 +339,7 @@ testMisTake = refl
 
 
 ----------------------------------------------------------------------------
--- ??? 1.8 take II (score: ? / 1)
+-- ??? 1.8 take II (score: 2 / 2)
 --
 -- Fix mis-take by acknowledging the possibility of error. Ensure that your
 -- function returns "yes" with a list of exactly the right length if
@@ -347,7 +347,7 @@ testMisTake = refl
 ----------------------------------------------------------------------------
 
 may-take : {X : Set} -> Nat -> List X -> Maybe (List X)
-may-take zero [] = yes []
+may-take zero [] = yes []          -- Conor: why look at the list?
 may-take zero (x :: xs) = yes []
 may-take (suc n) [] = no
 may-take (suc n) (x :: xs) with may-take n xs
@@ -370,14 +370,14 @@ testMayTake3 = refl
 
 
 ----------------------------------------------------------------------------
--- ??? 1.9 length (score: ? / 1)
+-- ??? 1.9 length (score: 1 / 1)
 ----------------------------------------------------------------------------
 
 -- Show how to compute the length of a list.
 
 length : {X : Set} -> List X -> Nat
 length [] = zero
-length (x :: xs) = suc(length xs)
+length (x :: xs) = suc(length xs)   -- Conor: good style to put space for application suc (length xs)
 
 -- unit test
 {-(-}
@@ -417,10 +417,12 @@ data Vec (X : Set) : (n : Nat) -> Set where -- n's not in scope after "where"
 
 
 ----------------------------------------------------------------------------
--- ??? 1.10 concatenation (score: ? / 1)
+-- ??? 1.10 concatenation (score: 0 / 1)
 ----------------------------------------------------------------------------
 
 -- When we concatenate vectors, we add their lengths.
+
+-- Conor: so you need to fix +N as hinted
 
 _+V_ : {X : Set}{m n : Nat} -> Vec X m -> Vec X n -> Vec X (m +N n)
 [] +V [] = []
@@ -449,7 +451,7 @@ testConcV = refl
 
 
 ----------------------------------------------------------------------------
--- ??? 1.11 take (score: ? / 2)
+-- ??? 1.11 take (score: 2 / 2)
 ----------------------------------------------------------------------------
 
 -- Now we know the lengths, we can give a PRECONDITION for taking.
@@ -492,8 +494,10 @@ data Choppable {X : Set}(m n : Nat) : Vec X (m +N n) -> Set where
   chopTo : (xs : Vec X m)(ys : Vec X n) -> Choppable m n (xs +V ys)
 
 ----------------------------------------------------------------------------
--- ??? 1.12 chop (score: ? / 2)
+-- ??? 1.12 chop (score: 1 / 2)
 ----------------------------------------------------------------------------
+
+-- Conor: right approach, but stuffed because +V isn't doing the right thing
 
 chop : {X : Set}(m n : Nat)(xs : Vec X (m +N n)) -> Choppable m n xs
 chop zero zero [] = chopTo [] []
