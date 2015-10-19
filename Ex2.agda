@@ -13,11 +13,14 @@ module Ex2 where
 -- vectors
 ----------------------------------------------------------------------------
 
+
 open import CS410-Prelude
 open import CS410-Monoid
 open import CS410-Nat
 open import CS410-Vec
 open import CS410-Functor
+
+
 
 -- HINT: your tasks are heralded with the eminently searchable tag, "???"
 
@@ -27,7 +30,8 @@ open import CS410-Functor
 ----------------------------------------------------------------------------
 
 vec : forall {n X} -> X -> Vec X n
-vec x = {!!}
+vec {zero} x = []
+vec {suc n} x = x :: vec x
 
 -- HINT: you may need to override default invisibility
 
@@ -42,9 +46,9 @@ vec x = {!!}
 -- and arguments and computes the applications in corresponding
 -- positions
 
-vapp : forall {n X Y} ->
-       Vec (X -> Y) n -> Vec X n -> Vec Y n
-vapp fs xs = {!!}
+vapp : forall {n X Y} -> Vec (X -> Y) n -> Vec X n -> Vec Y n
+vapp [] xs = []
+vapp (x :: fs) (y :: xs) = x y :: vapp fs xs
 
 
 ----------------------------------------------------------------------------
@@ -54,11 +58,12 @@ vapp fs xs = {!!}
 -- implement map and zip for vectors using vec and vapp
 -- no pattern matching or recursion permitted
 
+
 vmap : forall {n X Y} -> (X -> Y) -> Vec X n -> Vec Y n
-vmap f xs = {!!}
+vmap f xs = vapp (vec f) xs
 
 vzip : forall {n X Y} -> Vec X n -> Vec Y n -> Vec (X * Y) n
-vzip xs ys = {!!}
+vzip xs ys = vapp (vmap _,_ xs) ys
 
 
 ----------------------------------------------------------------------------
@@ -68,14 +73,16 @@ vzip xs ys = {!!}
 -- implement unzipping as a view, showing that every vector of pairs
 -- is given by zipping two vectors
 
--- you'll need to complete the view type yourself
+-- you'll need to complete the view type yourselfiew type yourself
 
 data Unzippable {X Y n} : Vec (X * Y) n -> Set where
-  unzipped : {- some stuff -> -} Unzippable {!!}
+     unzipped : (xs : Vec X n)(ys : Vec Y n) ->
+                                             Unzippable (vzip xs ys)
+
   
 unzip : forall {X Y n}(xys : Vec (X * Y) n) -> Unzippable xys
-unzip xys = {!!}
-
+unzip [] = unzipped [] []
+unzip (fst , snd :: xys) = {!unzipped ?!}
 
 ----------------------------------------------------------------------------
 -- ??? 2.5 vectors are applicative                            (score: ? / 2)
