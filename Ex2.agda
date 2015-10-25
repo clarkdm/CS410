@@ -76,13 +76,15 @@ vzip xs ys = vapp (vmap _,_ xs) ys
 -- you'll need to complete the view type yourselfiew type yourself
 
 data Unzippable {X Y n} : Vec (X * Y) n -> Set where
-     unzipped : (xs : Vec X n)(ys : Vec Y n) ->
-                                             Unzippable (vzip xs ys)
+     unzipped : (xs : Vec X n)(ys : Vec Y n) -> Unzippable (vzip xs ys)
 
   
 unzip : forall {X Y n}(xys : Vec (X * Y) n) -> Unzippable xys
 unzip [] = unzipped [] []
-unzip (fst , snd :: xys) = {!unzipped ?!}
+unzip (fst , snd :: []) = unzipped (fst :: []) (snd :: [])
+unzip (fst , snd :: xys) with unzip xys
+unzip (fst , snd :: .(vapp (vapp (vec _,_) xs) ys)) | unzipped xs ys = 
+                                            unzipped (fst :: xs) (snd :: ys)
 
 ----------------------------------------------------------------------------
 -- ??? 2.5 vectors are applicative                            (score: ? / 2)
@@ -94,7 +96,7 @@ VecApp : forall n -> Applicative \X -> Vec X n
 VecApp n = record
   { pure         = vec
   ; _<*>_        = vapp
-  ; identity     = {!!}
+  ; identity     = \ {X} v -> {!!}
   ; composition  = {!!}
   ; homomorphism = {!!}
   ; interchange  = {!!}
