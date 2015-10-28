@@ -1,4 +1,4 @@
-module Ex3 where
+module Ex3Lec where
 
 ----------------------------------------------------------------------------
 -- EXERCISE 3 -- MONADS FOR HUTTON'S RAZOR
@@ -28,6 +28,14 @@ open import CS410-Functor
 HVal : Set   -- the set of *values* for Hutton's Razor
 HVal = Two + Nat   -- Booleans or natural numbers
 
+foo : HVal
+foo = tt , ff
+
+goo : HVal
+goo = ff , 42
+
+
+
 data HExp (X : Set) : Set where
   var        : X -> HExp X                  -- variables
   val        : HVal -> HExp X               -- values
@@ -48,7 +56,7 @@ suc m  >=2  suc n  = m >=2 n
 -- simultaneous substitution (transforming all the variables in a term).
 
 hExpMonad : Monad HExp
-hExpMonad = {!!}
+hExpMonad = record { return = {!!} ; _>>=_ = {!!} }
 
 
 ----------------------------------------------------------------------------
@@ -66,8 +74,8 @@ errorMonad E = {!!}
 -- ??? 3.3 the environment monad transformer                   (score: ? / 1)
 ----------------------------------------------------------------------------
 
--- show that any monad can be adapted to thread some environment information
--- as well as whatever else it already managed
+-- show that "+ E" is monadic, generalising the "Maybe" monad by allowing
+-- some sort of error report
 
 envMonad : (G : Set){M : Set -> Set} -> Monad M ->
            Monad \ V -> G -> M V      -- "computation in an environment"
@@ -113,7 +121,7 @@ mustBeTwo v = {!!}
 -- Now, you're ready to go. Don't introduce the environent explicitly.
 -- Use the monad to thread it.
 
-interpret : {X : Set} -> HExp X -> Env X -> HVal + InterpretError
+interpret : {X : Set} -> HExp X -> Compute X HVal
 interpret {X} = go where
   open Monad (envMonad (Env X) (errorMonad InterpretError))
   go : HExp X -> Env X -> HVal + InterpretError
