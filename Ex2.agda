@@ -96,13 +96,36 @@ VecApp : forall n -> Applicative \X -> Vec X n
 VecApp n = record
   { pure         = vec
   ; _<*>_        = vapp
-  ; identity     = \ {X} v -> {!!}
-  ; composition  = {!!}
-  ; homomorphism = {!!}
-  ; interchange  = {!!}
+  ; identity     = \ {X} v -> VecAppIdentity v
+  ; composition  = λ u v w → VecAppComposition w v u 
+  ; homomorphism = λ f x → VecAppHomomorphism x f
+  ; interchange  = λ {X} {Y} u y → VecAppInterchange y u
   } where
   -- lemmas go here
+  --  Goal: vapp u (vec y) == vapp (vec (λ f → f y)) u
+  VecAppInterchange : {Y : Set} -> {X : Set} -> {n : Nat} -> (y : X) -> (u : Vec (X → Y) n) -> vapp u (vec y) == vapp (vec (λ f → f y)) u
 
+  VecAppInterchange u [] = refl
+  VecAppInterchange u (x :: y)  rewrite VecAppInterchange u y = refl
+
+  --  Goal: vapp (vec (λ x → x)) v == v
+  VecAppIdentity : {X : Set} -> {n : Nat} -> (v : Vec X n) -> 
+                                       vapp (vec (\ x -> x)) v == v 
+  VecAppIdentity [] = refl
+  VecAppIdentity (x :: v) rewrite VecAppIdentity v =  refl
+
+  --  Goal: vapp (vapp (vapp (vec (λ f g x → f (g x))) u) v) w == vapp u (vapp v w)
+
+  VecAppComposition : {Z : Set} -> {Y : Set} -> {X : Set} -> {n : Nat} -> 
+                      (w : Vec X n) -> (v : Vec (X → Z) n) -> (u : Vec (Z → Y) n)-> 
+                      vapp (vapp (vapp (vec (λ f g x → f (g x))) u) v) w == vapp u (vapp v w)
+  VecAppComposition [] [] [] = refl
+  VecAppComposition (x :: w) (x₁ :: v) (x₂ :: u) rewrite VecAppComposition w v u = refl
+
+  --  Goal: vec (f x) == vapp (vec f) (vec x)
+  VecAppHomomorphism : {X : Set} -> {Y : Set} -> {n : Nat} -> (x : X) -> (f : X → Y) -> 
+                       vec (f x) == vapp (vec f) (vec x)
+  VecAppHomomorphism x f   = refl
 
 ----------------------------------------------------------------------------
 -- ??? 2.6 vectors are traversable                            (score: ? / 1)
@@ -112,7 +135,7 @@ VecApp n = record
 -- acts on the elements of the input once each, left-to-right
 
 VecTrav : forall n -> Traversable \X -> Vec X n
-VecTrav = {!!}
+VecTrav = {!n!}
 
 
 ----------------------------------------------------------------------------
@@ -190,7 +213,7 @@ idMat = {!!}
 ----------------------------------------------------------------------------
 
 -- show how to transpose matrices
--- HINT: use traverse, and it's a one-liner
+-- HINT: use traverse, and it's a one-iner
 
 transpose : forall {X m n} -> Matrix X (m , n) -> Matrix X (n , m)
 transpose = {!!}
