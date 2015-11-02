@@ -97,16 +97,11 @@ VecApp n = record
   { pure         = vec
   ; _<*>_        = vapp
   ; identity     = \ {X} v -> VecAppIdentity v
-  ; composition  = λ u v w → VecAppComposition w v u 
-  ; homomorphism = λ f x → VecAppHomomorphism x f
+  ; composition  = λ u v w →  VecAppComposition w v u 
+  ; homomorphism = λ f x →  VecAppHomomorphism n x f
   ; interchange  = λ {X} {Y} u y → VecAppInterchange y u
   } where
   -- lemmas go here
-  --  Goal: vapp u (vec y) == vapp (vec (λ f → f y)) u
-  VecAppInterchange : {Y : Set} -> {X : Set} -> {n : Nat} -> (y : X) -> (u : Vec (X → Y) n) -> vapp u (vec y) == vapp (vec (λ f → f y)) u
-
-  VecAppInterchange u [] = refl
-  VecAppInterchange u (x :: y)  rewrite VecAppInterchange u y = refl
 
   --  Goal: vapp (vec (λ x → x)) v == v
   VecAppIdentity : {X : Set} -> {n : Nat} -> (v : Vec X n) -> 
@@ -120,12 +115,19 @@ VecApp n = record
                       (w : Vec X n) -> (v : Vec (X → Z) n) -> (u : Vec (Z → Y) n)-> 
                       vapp (vapp (vapp (vec (λ f g x → f (g x))) u) v) w == vapp u (vapp v w)
   VecAppComposition [] [] [] = refl
-  VecAppComposition (x :: w) (x₁ :: v) (x₂ :: u) rewrite VecAppComposition w v u = refl
+  VecAppComposition (x :: w) (x₁ :: v) (x₂ :: u)rewrite VecAppComposition w v u  = refl
 
   --  Goal: vec (f x) == vapp (vec f) (vec x)
-  VecAppHomomorphism : {X : Set} -> {Y : Set} -> {n : Nat} -> (x : X) -> (f : X → Y) -> 
-                       vec (f x) == vapp (vec f) (vec x)
-  VecAppHomomorphism x f   = refl
+  VecAppHomomorphism : {X : Set} -> {Y : Set} -> (q : Nat) -> (x : X) -> (f : X → Y) -> 
+                       vec {q} (f x)  == vapp (vec f) (vec x)
+  VecAppHomomorphism zero x f = refl
+  VecAppHomomorphism (suc q) x f rewrite VecAppHomomorphism q x f =  refl
+
+  --  Goal: vapp u (vec y) == vapp (vec (λ f → f y)) u
+  VecAppInterchange : {Y : Set} -> {X : Set} -> {n : Nat} -> (y : X) -> (u : Vec (X → Y) n) -> vapp u (vec y) == vapp (vec (λ f → f y)) u
+
+  VecAppInterchange u [] = refl
+  VecAppInterchange u (x :: y)  rewrite VecAppInterchange u y = refl
 
 ----------------------------------------------------------------------------
 -- ??? 2.6 vectors are traversable                            (score: ? / 1)
@@ -134,8 +136,12 @@ VecApp n = record
 -- show that vectors are traversable; make sure your traverse function
 -- acts on the elements of the input once each, left-to-right
 
-VecTrav : forall n -> Traversable \X -> Vec X n
-VecTrav = {!n!}
+  VecTrav : forall n -> Traversable \X -> Vec X n
+  VecTrav zero = record { traverse = λ {F} z {A} {B} _ _ → Applicative.pure z [] }
+  VecTrav (suc n) = record { traverse = λ x x₁ x₂ → {!!} } 
+ 
+--VecTrav zero = record { traverse = λ {F} z {A} {B} _ _ → Applicative.pure z [] }
+--VecTrav (suc n) =  record { traverse = λ {F} x y z → {!!} }
 
 
 ----------------------------------------------------------------------------
@@ -146,14 +152,16 @@ VecTrav = {!n!}
 
 MonCon : forall {X} -> Monoid X -> Applicative \_ -> X
 MonCon M = record
-             { pure          = {!!}
+             { pure          = λ x → Monoid.e M
              ; _<*>_         = op
-             ; identity      = {!!}
-             ; composition   = {!!}
-             ; homomorphism  = {!!}
-             ; interchange   = {!!}
+             ; identity      = λ v → Monoid.lunit M v
+             ; composition   = λ u v w → {!!}
+             ; homomorphism  = λ f x → {!!}
+             ; interchange   = λ u y → {!!}
              } where open Monoid M
 
+       --MonConCoposition : (w : Set) -> (v : Set) -> (u : Set) -> op (op (op e u) v) w == op u (op v w)
+       --MonConCoposition x = ?
 
 ----------------------------------------------------------------------------
 -- ??? 2.8 vector combine                                     (score: ? / 1)
@@ -163,8 +171,7 @@ MonCon M = record
 -- show how to compute the result of combining all the elements of a vector
 -- when they belong to some monoid.
 
-vcombine : forall {X} -> Monoid X ->
-           forall {n} -> Vec X n -> X
+vcombine : forall {X} -> Monoid X -> forall {n} -> Vec X n -> X
 vcombine M = {!!}
 
 
@@ -177,7 +184,7 @@ vcombine M = {!!}
 -- HINT: think zippily, then combine
 
 vdot : forall {n} -> Vec Nat n -> Vec Nat n -> Nat
-vdot xs ys = {!!}
+vdot xs ys = ?
 
 
 ----------------------------------------------------------------------------
@@ -213,7 +220,7 @@ idMat = {!!}
 ----------------------------------------------------------------------------
 
 -- show how to transpose matrices
--- HINT: use traverse, and it's a one-iner
+-- HINT: use traverse, and it's a one-liner
 
 transpose : forall {X m n} -> Matrix X (m , n) -> Matrix X (n , m)
 transpose = {!!}
