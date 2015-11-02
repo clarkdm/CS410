@@ -26,7 +26,7 @@ open import CS410-Functor
 
 
 ----------------------------------------------------------------------------
--- ??? 2.1 replicattion to make a constant vector             (score: ? / 1)
+-- ??? 2.1 replicattion to make a constant vector             (score: 1 / 1)
 ----------------------------------------------------------------------------
 
 vec : forall {n X} -> X -> Vec X n
@@ -39,7 +39,7 @@ vec {suc n} x = x :: vec x
 
 
 ----------------------------------------------------------------------------
--- ??? 2.2 vectorised application                             (score: ? / 1)
+-- ??? 2.2 vectorised application                             (score: 1 / 1)
 ----------------------------------------------------------------------------
 
 -- implement the operator which takes the same number of functions
@@ -52,7 +52,7 @@ vapp (x :: fs) (y :: xs) = x y :: vapp fs xs
 
 
 ----------------------------------------------------------------------------
--- ??? 2.3 one-liners                                         (score: ? / 1)
+-- ??? 2.3 one-liners                                         (score: 1 / 1)
 ----------------------------------------------------------------------------
 
 -- implement map and zip for vectors using vec and vapp
@@ -67,7 +67,7 @@ vzip xs ys = vapp (vmap _,_ xs) ys
 
 
 ----------------------------------------------------------------------------
--- ??? 2.4 unzipping                                          (score: ? / 2)
+-- ??? 2.4 unzipping                                          (score: 2 / 2)
 ----------------------------------------------------------------------------
 
 -- implement unzipping as a view, showing that every vector of pairs
@@ -81,13 +81,13 @@ data Unzippable {X Y n} : Vec (X * Y) n -> Set where
   
 unzip : forall {X Y n}(xys : Vec (X * Y) n) -> Unzippable xys
 unzip [] = unzipped [] []
-unzip (fst , snd :: []) = unzipped (fst :: []) (snd :: [])
+unzip (fst , snd :: []) = unzipped (fst :: []) (snd :: [])  -- Conor: redundant line
 unzip (fst , snd :: xys) with unzip xys
 unzip (fst , snd :: .(vapp (vapp (vec _,_) xs) ys)) | unzipped xs ys = 
                                             unzipped (fst :: xs) (snd :: ys)
 
 ----------------------------------------------------------------------------
--- ??? 2.5 vectors are applicative                            (score: ? / 2)
+-- ??? 2.5 vectors are applicative                            (score: 2 / 2)
 ----------------------------------------------------------------------------
 
 -- prove the Applicative laws for vectors
