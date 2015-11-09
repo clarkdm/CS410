@@ -48,7 +48,7 @@ suc m  >=2  suc n  = m >=2 n
 -- simultaneous substitution (transforming all the variables in a term).
 
 hExpMonad : Monad HExp
-hExpMonad = record { return = λ x → var x 
+hExpMonad = record { return = λ x → var x
                    ; _>>=_ = λ x f → hExpMonad>>= x f  
                    ; law1 = λ x f → refl 
                    ; law2 = λ t → hExpMonadLaw2 t  
@@ -87,13 +87,26 @@ hExpMonad = record { return = λ x → var x
 -- some sort of error report
 
 errorMonad : (E : Set) -> Monad \ V -> V + E   -- "value or error"
-errorMonad E = record { return = λ x → {!!} 
-                      ; _>>=_ = λ x x₁ → {!!} 
-                      ; law1 = λ x f → {!!} 
-                      ; law2 = λ t → {!!} 
-                      ; law3 = λ f g t → {!!} 
-                      }
+errorMonad E = record { return = λ x → tt , x
+                      ; _>>=_ = errorMonad>>= 
+                      ; law1 = λ x f → refl 
+                      ; law2 = errorMonadLaw2 
+                      ; law3 = {!errorMonadLaw3!} 
+                      } where
 
+  errorMonad>>= : {X Y : Set} → X + E → (X → Y + E) → Y + E
+  errorMonad>>= (tt , snd) y = y snd
+  errorMonad>>= (ff , snd) y = ff , snd
+
+  errorMonadLaw2 : {X : Set} (t : X + E) → errorMonad>>= t (λ x → tt , x) == t 
+  errorMonadLaw2 (tt , snd) = refl
+  errorMonadLaw2 (ff , snd) = refl
+
+  errorMonadLaw3 :  {X Y Z : Set} (f : X → Y + E) (g : Y → Z + E) (t : X + E) →
+                    errorMonad>>= (errorMonad>>= t f) g == errorMonad>>= t 
+                    (λ x → errorMonad>>= (f x) g)
+  errorMonadLaw3 f g (tt , snd) = refl
+  errorMonadLaw3 f g (ff , snd) = refl
 
 ----------------------------------------------------------------------------
 -- ??? 3.3 the environment monad transformer                   (score: ? / 1)
