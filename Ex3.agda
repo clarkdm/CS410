@@ -48,8 +48,36 @@ suc m  >=2  suc n  = m >=2 n
 -- simultaneous substitution (transforming all the variables in a term).
 
 hExpMonad : Monad HExp
-hExpMonad = {!!}
+hExpMonad = record { return = λ x → var x 
+                   ; _>>=_ = λ x f → hExpMonad>>= x f  
+                   ; law1 = λ x f → refl 
+                   ; law2 = λ t → hExpMonadLaw2 t  
+                   ; law3 = λ f g t → hExpMonadLaw3 t g f  
+                   } where
 
+
+  hExpMonad>>= : {X Y : Set} → HExp X → (X → HExp Y) → HExp Y
+  hExpMonad>>= (var x) f = f x
+  hExpMonad>>= (val x) f = val x
+  hExpMonad>>= (x +H y) f = hExpMonad>>= x f +H hExpMonad>>= y f
+  hExpMonad>>= (x >=H y) f = hExpMonad>>= x f >=H  hExpMonad>>= y f 
+  hExpMonad>>= (ifH x then y else z) f = ifH hExpMonad>>= x f then 
+               hExpMonad>>= y f else hExpMonad>>= z f
+
+
+  hExpMonadLaw2 : {X : Set} → (t : HExp X) →  hExpMonad>>= t (λ x → var x) == t
+  hExpMonadLaw2 (var x) = refl
+  hExpMonadLaw2 (val x) = refl
+  hExpMonadLaw2 (x +H y) rewrite hExpMonadLaw2 x | hExpMonadLaw2 y  = refl 
+  hExpMonadLaw2 (x >=H y) rewrite hExpMonadLaw2 x | hExpMonadLaw2 y  = refl
+  hExpMonadLaw2 (ifH x then y else z) rewrite hExpMonadLaw2 x | hExpMonadLaw2 y | hExpMonadLaw2 z = refl
+
+  hExpMonadLaw3 : {X Y Z : Set} →  (t  : HExp X) → (g  : Y → HExp Z) → (f  : X → HExp Y) → hExpMonad>>= (hExpMonad>>= t f) g == hExpMonad>>= t (λ x → hExpMonad>>= (f x) g)
+  hExpMonadLaw3 (var x) g t = refl
+  hExpMonadLaw3 (val x) g t = refl
+  hExpMonadLaw3 (f +H f₁) g t rewrite hExpMonadLaw3 f g t | hExpMonadLaw3 f₁ g t = refl
+  hExpMonadLaw3 (f >=H f₁) g t rewrite hExpMonadLaw3 f g t | hExpMonadLaw3 f₁ g t = refl
+  hExpMonadLaw3 (ifH f then f₁ else f₂) g t rewrite hExpMonadLaw3 f g t | hExpMonadLaw3 f₁ g t | hExpMonadLaw3 f₂ g t = refl
 
 ----------------------------------------------------------------------------
 -- ??? 3.2 the error management monad                         (score: ? / 1)
@@ -59,7 +87,12 @@ hExpMonad = {!!}
 -- some sort of error report
 
 errorMonad : (E : Set) -> Monad \ V -> V + E   -- "value or error"
-errorMonad E = {!!}
+errorMonad E = record { return = λ x → {!!} 
+                      ; _>>=_ = λ x x₁ → {!!} 
+                      ; law1 = λ x f → {!!} 
+                      ; law2 = λ t → {!!} 
+                      ; law3 = λ f g t → {!!} 
+                      }
 
 
 ----------------------------------------------------------------------------
