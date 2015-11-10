@@ -91,7 +91,7 @@ errorMonad E = record { return = λ x → tt , x
                       ; _>>=_ = errorMonad>>= 
                       ; law1 = λ x f → refl 
                       ; law2 = errorMonadLaw2 
-                      ; law3 = {!errorMonadLaw3!} 
+                      ; law3 = errorMonadLaw3 
                       } where
 
   errorMonad>>= : {X Y : Set} → X + E → (X → Y + E) → Y + E
@@ -117,9 +117,25 @@ errorMonad E = record { return = λ x → tt , x
 
 envMonad : (G : Set){M : Set -> Set} -> Monad M ->
            Monad \ V -> G -> M V      -- "computation in an environment"
-envMonad G MM = {!!} where
+envMonad G {M} MM = record { return = λ {X} z _ → Monad.return MM z 
+                       ; _>>=_ = λ {X} {Y} z z₁ z₂ → (MM Monad.>>= z z₂) (λ z₃ →
+                                 z₁ z₃ z₂) 
+                       ; law1 = λ {X Y} x f → envMonadLaw1 f x 
+                       ; law2 = envMonadLaw2 
+                       ; law3 = envMonadLaw3 
+                       } where 
   open Monad MM
-
+  
+  envMonadLaw1 : {X Y : Set} (f  : X → G → M Y) -> (x  : X) -> 
+                 (λ z₂ → return x >>= (λ z₃ → f z₃ z₂)) == f x
+  envMonadLaw1 f x = ext (λ g → Monad.law1 MM x (λ z → f z g))
+  
+  envMonadLaw2 : {X : Set} (t : G → M X) → 
+                 (λ z₂ → t z₂ >>= (λ z₃ → return z₃)) == t
+  envMonadLaw2 x = ext (λ a → Monad.law2 MM (x a)) 
+  
+  envMonadLaw3 : {X Y Z : Set} (f : X → G → M Y) (g : Y → G → M Z) (t : G → M X) →(λ z₂ → (t z₂ >>= (λ z₃ → f z₃ z₂)) >>= (λ z₃ → g z₃ z₂)) == (λ z₂ → t z₂ >>= (λ z₃ → f z₃ z₂ >>= (λ z₄ → g z₄ z₂)))
+  envMonadLaw3 f g t = ext (λ a → Monad.law3 MM (λ z → f z a) (λ z → g z a) (t a)) 
 ----------------------------------------------------------------------------
 -- ??? 3.4 interpreting Hutton's Razor                        (score: ? / 3)
 ----------------------------------------------------------------------------
