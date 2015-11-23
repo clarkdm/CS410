@@ -103,7 +103,7 @@ errorMonad E = record { return = λ x → tt , x
   errorMonadLaw2 (ff , snd) = refl
 
   errorMonadLaw3 :  {X Y Z : Set} (f : X → Y + E) (g : Y → Z + E) (t : X + E) →
-                    errorMonad>>= (errorMonad>>= t f) g == errorMonad>>= t 
+                     errorMonad>>= (errorMonad>>= t f) g == errorMonad>>= t 
                     (λ x → errorMonad>>= (f x) g)
   errorMonadLaw3 f g (tt , snd) = refl
   errorMonadLaw3 f g (ff , snd) = refl
@@ -118,8 +118,8 @@ errorMonad E = record { return = λ x → tt , x
 envMonad : (G : Set){M : Set -> Set} -> Monad M ->
            Monad \ V -> G -> M V      -- "computation in an environment"
 envMonad G {M} MM = record { return = λ {X} z _ → Monad.return MM z 
-                       ; _>>=_ = λ {X} {Y} z z₁ z₂ → (MM Monad.>>= z z₂) (λ z₃ →
-                                 z₁ z₃ z₂) 
+                       ; _>>=_ = λ {X} {Y} z z₁ z₂ → (MM Monad.>>= z z₂) 
+                                   (λ z₃ → z₁ z₃ z₂) 
                        ; law1 = λ {X Y} x f → envMonadLaw1 f x 
                        ; law2 = envMonadLaw2 
                        ; law3 = envMonadLaw3 
@@ -146,6 +146,10 @@ envMonad G {M} MM = record { return = λ {X} z _ → Monad.return MM z
 -- Ensure that the condition in an "if" is a Boolean, not a number.
 
 data InterpretError : Set where
+  NotTwo               : InterpretError
+  NotNat               : InterpretError
+  
+
 
 -- helpful things to build
 
@@ -155,22 +159,31 @@ Env X = X -> HVal
 Compute : Set{- variables -} -> Set{- values -} -> Set
 Compute X V = Env X -> V + InterpretError  -- how to compute a V
 
-computeMonad : {X : Set} -> Monad (Compute X)
-computeMonad = {!!}  -- build this from the above parts
+computeMonad : {Z : Set} -> Monad (Compute Z)
+computeMonad {Z} = {!envMonad hExpMonad (errorMonad Z)!}
+
+
+ -- build this from the above parts
 
 -- This operation should explain how to get the value of a variable
 -- from the environment.
 varVal : {X : Set} -> X -> Compute X HVal
-varVal x = {!!}
+varVal x y = tt , (y x)
 
 -- These operations should ensure that you get the sort of value
 -- that you want, in order to ensure that you don't do bogus
 -- computation.
 mustBeNat : {X : Set} -> HVal -> Compute X Nat
-mustBeNat v = {!!}
+mustBeNat (tt , tt) x = ff , NotNat
+mustBeNat (tt , ff) x = ff , NotNat
+mustBeNat (ff , zero) x = tt , zero
+mustBeNat (ff , suc snd) x = tt , suc snd
 
 mustBeTwo : {X : Set} -> HVal -> Compute X Two
-mustBeTwo v = {!!}
+mustBeTwo (tt , tt) x = tt , tt
+mustBeTwo (tt , ff) x = tt , ff
+mustBeTwo (ff , zero) x = ff , NotTwo
+mustBeTwo (ff , suc snd) x = ff , NotTwo
 
 -- Now, you're ready to go. Don't introduce the environment explicitly.
 -- Use the monad to thread it.
@@ -179,7 +192,11 @@ interpret : {X : Set} -> HExp X -> Compute X HVal
 interpret {X} = go where
   open Monad (computeMonad {X})
   go : HExp X -> Compute X HVal
-  go t = {!!}
+  go (var x) y = {!!}
+  go (val x) y = {!!}
+  go (t +H t₁) x = {!!}
+  go (t >=H t₁) x = {!!}
+  go (ifH t then t₁ else t₂) x = {!!}
 
 
 ----------------------------------------------------------------------------
