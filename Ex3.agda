@@ -160,8 +160,7 @@ Compute : Set{- variables -} -> Set{- values -} -> Set
 Compute X V = Env X -> V + InterpretError  -- how to compute a V
 
 computeMonad : {Z : Set} -> Monad (Compute Z)
-computeMonad {Z} = {!envMonad hExpMonad (errorMonad Z)!}
-
+computeMonad {Z} = envMonad (Env Z) (errorMonad InterpretError)  
 
  -- build this from the above parts
 
@@ -169,6 +168,7 @@ computeMonad {Z} = {!envMonad hExpMonad (errorMonad Z)!}
 -- from the environment.
 varVal : {X : Set} -> X -> Compute X HVal
 varVal x y = tt , (y x)
+--  tt , (y x)
 
 -- These operations should ensure that you get the sort of value
 -- that you want, in order to ensure that you don't do bogus
@@ -192,13 +192,11 @@ interpret : {X : Set} -> HExp X -> Compute X HVal
 interpret {X} = go where
   open Monad (computeMonad {X})
   go : HExp X -> Compute X HVal
-  go (var x) y = {!!}
-  go (val x) y = {!!}
-  go (t +H t₁) x = {!!}
-  go (t >=H t₁) x = {!!}
-  go (ifH t then t₁ else t₂) x = {!!}
-
-
+  go (var x) E = tt , (E x)
+  go (val x) E = tt , x
+  go (t +H t₁) E = {!!}
+  go (t >=H t₁) E = {!!}
+  go (ifH t then t₁ else t₂) E = {!!}
 ----------------------------------------------------------------------------
 -- ??? 3.5 Typed Hutton's Razor                               (score: ? / 1)
 ----------------------------------------------------------------------------
