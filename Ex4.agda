@@ -69,8 +69,9 @@ WriteR .opened closeWrite            = One  -- always works
    closes its file. -}
 
 writeNext : (j : WriteState)(c : WriteC j) -> WriteR j c -> WriteState
-writeNext j c r = {!!}
-
+writeNext .closed (openWrite fileName) r = r
+writeNext .opened (writeChar x) r = opened
+writeNext .opened closeWrite r = closed
 -- the file writing interface, assembled as an indexed container
 WRITE : WriteState => WriteState
 WRITE = WriteC <! WriteR / writeNext
@@ -85,22 +86,25 @@ WRITE = WriteC <! WriteR / writeNext
 
 -- States
 data ReadState : Set where
-  opened : (eof : Two) -> ReadState    -- eof is tt if we're at end of file
+  opened : (eof : Two) -> ReadState -- eof is tt if we're at end of file
   closed : ReadState
 
 {- 4.2 Finish the READ implementation, in accordance with the description. -}
 
 -- Commands
 data ReadC : ReadState -> Set where
-  openRead    : {- your stuff -} ReadC {!!}   -- needs a filename; might not open successfully;
-                                              -- might open an empty file
-  readChar    : {- your stuff -} ReadC {!!}   -- makes sense only if we're not at end of file
-                                              -- and might take us to end of file
-  closeRead   : {- your stuff -} ReadC {!!}   -- makes sense only if the file is open
+  openRead    : (fileName : String) -> ReadC {!!}  
+ -- needs a filename; might not open successfully;
+ -- might open an empty file
+  readChar    : {- your stuff -} ReadC {!!}   
+-- makes sense only if we're not at end of file
+-- and might take us to end of file
+  closeRead   : {- your stuff -} ReadC {!!}  
+-- makes sense only if the file is open
 
 -- Responses
 ReadR : (j : ReadState)(c : ReadC j) -> Set
-ReadR j c = {!!}
+ReadR j c = {!c!}
 
 -- next State; you need to make sure the response gives enough info
 readNext : (j : ReadState)(c : ReadC j) -> ReadR j c -> ReadState
