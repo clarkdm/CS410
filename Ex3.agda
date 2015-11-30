@@ -1,4 +1,4 @@
-module Ex3 where
+module Ex3 where  -- Conor: 5.5/15
 
 ----------------------------------------------------------------------------
 -- EXERCISE 3 -- MONADS FOR HUTTON'S RAZOR
@@ -41,7 +41,7 @@ suc m  >=2  suc n  = m >=2 n
 
 
 ----------------------------------------------------------------------------
--- ??? 3.1 the HExp syntax-with-substitution monad            (score: ? / 2)
+-- ??? 3.1 the HExp syntax-with-substitution monad            (score: 2 / 2)
 ----------------------------------------------------------------------------
 
 -- Show that HExp is a monad, where the "bind" operation performs
@@ -80,7 +80,7 @@ hExpMonad = record { return = λ x → var x
   hExpMonadLaw3 (ifH f then f₁ else f₂) g t rewrite hExpMonadLaw3 f g t | hExpMonadLaw3 f₁ g t | hExpMonadLaw3 f₂ g t = refl
 
 ----------------------------------------------------------------------------
--- ??? 3.2 the error management monad                         (score: ? / 1)
+-- ??? 3.2 the error management monad                         (score: 1 / 1)
 ----------------------------------------------------------------------------
 
 -- show that "+ E" is monadic, generalising the "Maybe" monad by allowing
@@ -109,7 +109,7 @@ errorMonad E = record { return = λ x → tt , x
   errorMonadLaw3 f g (ff , snd) = refl
 
 ----------------------------------------------------------------------------
--- ??? 3.3 the environment monad transformer                   (score: ? / 1)
+-- ??? 3.3 the environment monad transformer                   (score: 1 / 1)
 ----------------------------------------------------------------------------
 
 -- show that any monad can be adapted to thread some environment information
@@ -137,7 +137,7 @@ envMonad G {M} MM = record { return = λ {X} z _ → Monad.return MM z
   envMonadLaw3 : {X Y Z : Set} (f : X → G → M Y) (g : Y → G → M Z) (t : G → M X) →(λ z₂ → (t z₂ >>= (λ z₃ → f z₃ z₂)) >>= (λ z₃ → g z₃ z₂)) == (λ z₂ → t z₂ >>= (λ z₃ → f z₃ z₂ >>= (λ z₄ → g z₄ z₂)))
   envMonadLaw3 f g t = ext (λ a → Monad.law3 MM (λ z → f z a) (λ z → g z a) (t a)) 
 ----------------------------------------------------------------------------
--- ??? 3.4 interpreting Hutton's Razor                        (score: ? / 3)
+-- ??? 3.4 interpreting Hutton's Razor                        (score: 1.5 / 3)
 ----------------------------------------------------------------------------
 
 -- Implement an interpreter for Hutton's Razor.
@@ -174,15 +174,15 @@ varVal x y = tt , (y x)
 -- that you want, in order to ensure that you don't do bogus
 -- computation.
 mustBeNat : {X : Set} -> HVal -> Compute X Nat
-mustBeNat (tt , tt) x = ff , NotNat
+mustBeNat (tt , tt) x = ff , NotNat        -- Conor: more case analysis than needed
 mustBeNat (tt , ff) x = ff , NotNat
-mustBeNat (ff , zero) x = tt , zero
+mustBeNat (ff , zero) x = tt , zero        -- Conor: more case analysis than needed
 mustBeNat (ff , suc snd) x = tt , suc snd
 
 mustBeTwo : {X : Set} -> HVal -> Compute X Two
-mustBeTwo (tt , tt) x = tt , tt
+mustBeTwo (tt , tt) x = tt , tt            -- Conor: more case analysis than needed
 mustBeTwo (tt , ff) x = tt , ff
-mustBeTwo (ff , zero) x = ff , NotTwo
+mustBeTwo (ff , zero) x = ff , NotTwo     -- Conor: more case analysis than needed
 mustBeTwo (ff , suc snd) x = ff , NotTwo
 
 -- Now, you're ready to go. Don't introduce the environment explicitly.
@@ -192,9 +192,17 @@ interpret : {X : Set} -> HExp X -> Compute X HVal
 interpret {X} = go where
   open Monad (computeMonad {X})
   go : HExp X -> Compute X HVal
+  -- Conor: you already have the right kit, so it's counterproductive to go down to this detail
   go (var x) E = tt , (E x)
+  -- Conor: go (var x) = varVal x
   go (val x) E = tt , x
   go (t +H t₁) E = {!!}
+  -- Conor: go (l +H r) =
+  --   go l >>= \ lv ->               -- lv : HVal
+  --   mustBeNat lv >>= \ ln ->       -- ln : Nat
+  --   go r >>= \ rv ->               -- rv : HVal
+  --   mustBeNat rv >>= \ rn ->       -- rn : Nat
+  --   return (ln +N rn)
   go (t >=H t₁) E = {!!}
   go (ifH t then t₁ else t₂) E = {!!}
 ----------------------------------------------------------------------------
