@@ -93,22 +93,27 @@ data ReadState : Set where
 
 -- Commands
 data ReadC : ReadState -> Set where
-  openRead    : (fileName : String) -> ReadC {!!}  
+  openRead    : (fileName : String) -> ReadC closed  
  -- needs a filename; might not open successfully;
  -- might open an empty file
-  readChar    : {- your stuff -} ReadC {!!}   
--- makes sense only if we're not at end of file
--- and might take us to end of file
-  closeRead   : {- your stuff -} ReadC {!!}  
--- makes sense only if the file is open
+  readChar    :  ReadC (opened ff)   
+ -- makes sense only if we're not at end of file
+ -- and might take us to end of file
+  closeRead   : (eof : Two) -> ReadC (opened eof) 
+ -- makes sense only if the file is open
 
 -- Responses
 ReadR : (j : ReadState)(c : ReadC j) -> Set
-ReadR j c = {!c!}
+ReadR .closed (openRead fileName) = ReadState
+ReadR .(opened ff) readChar = {!!}
+ReadR .(opened eof) (closeRead eof) = One
 
 -- next State; you need to make sure the response gives enough info
 readNext : (j : ReadState)(c : ReadC j) -> ReadR j c -> ReadState
-readNext j c r = {!!}
+readNext (opened tt) c r = closed
+readNext (opened ff) readChar r = {!!} --(opened ff)
+readNext (opened ff) (closeRead .ff) r = closed
+readNext closed (openRead fileName) r = r
 
 READ : ReadState => ReadState
 READ = ReadC <! ReadR / readNext
@@ -128,6 +133,7 @@ READ = ReadC <! ReadR / readNext
 
 _=+=_ : {I : Set} -> I => I -> I => I -> I => I
 CRn0 =+= CRn1 = {!!}
+
 
 
 ---------------------------------------------------------------------------
