@@ -96,7 +96,7 @@ data ReadC : ReadState -> Set where
   openRead    : (fileName : String) -> ReadC closed  
  -- needs a filename; might not open successfully;
  -- might open an empty file
-  readChar    :  ReadC (opened ff)   
+  readChar : ReadC (opened ff)   
  -- makes sense only if we're not at end of file
  -- and might take us to end of file
   closeRead   : (eof : Two) -> ReadC (opened eof) 
@@ -105,15 +105,17 @@ data ReadC : ReadState -> Set where
 -- Responses
 ReadR : (j : ReadState)(c : ReadC j) -> Set
 ReadR .closed (openRead fileName) = ReadState
-ReadR .(opened ff) readChar = {!!}
+ReadR .(opened ff) readChar = Two
 ReadR .(opened eof) (closeRead eof) = One
+
+
 
 -- next State; you need to make sure the response gives enough info
 readNext : (j : ReadState)(c : ReadC j) -> ReadR j c -> ReadState
-readNext (opened tt) c r = closed
-readNext (opened ff) readChar r = {!!} --(opened ff)
-readNext (opened ff) (closeRead .ff) r = closed
-readNext closed (openRead fileName) r = r
+readNext .closed (openRead fileName) r = r
+readNext .(opened ff) readChar r =  opened r
+readNext .(opened eof) (closeRead eof) r = closed
+
 
 READ : ReadState => ReadState
 READ = ReadC <! ReadR / readNext
