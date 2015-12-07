@@ -147,7 +147,7 @@ READ = ReadC <! ReadR / readNext
 -}
 
 _=+=_ : {I : Set} -> I => I -> I => I -> I => I
-CRn0 =+= CRn1 = {!!}
+(Shape <! Position / index) =+= (Shape1 <! Position1 / index1) = ? <! ? / {!!}
 
 
 
