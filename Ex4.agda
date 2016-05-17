@@ -147,7 +147,28 @@ READ = ReadC <! ReadR / readNext
 -}
 
 _=+=_ : {I : Set} -> I => I -> I => I -> I => I
-(Shape <! Position / index) =+= (Shape1 <! Position1 / index1) = ? <! ? / {!!}
+(Shape <! Position / index) =+= (Shape1 <! Position1 / index1) =
+ (Shape +: Shape1) <!
+ (λ j → λ {(inl x) → Position j x; (inr x) -> Position1 j x }) / 
+ (λ j → \{(inl x) → index j x ; (inr x) -> index1 j x})
+ 
+
+--  {!λ {(inl x) Position → index j x Position ;(inl x) Position → index1 j x Position1 }!})
+
+--_=+=_ : {I : Set} -> I => I -> I => I -> I => I
+--(Shape <! Position / index) =+= (Shape1 <! Position1 / index1) 
+--  = (Shape +: Shape1) <!
+-- (λ j → λ {(inl x) → Position j x; (inr x) -> Position1 j x }) /
+-- (λ j x y → {! λ {?}!})
+--
+--(λ j x y → {!λ {(inl x) y → index j x y ;(inl x) y → index1 j x y }!})
+
+--record _=>_ (I J : Set) : Set1 where
+--  constructor _<!_/_
+--  field
+--    Shape     : J -> Set
+--    Position  : (j : J) -> Shape j -> Set
+--    index     : (j : J)(s : Shape j) -> Position j s -> I
 
 
 
@@ -163,12 +184,18 @@ _=+=_ : {I : Set} -> I => I -> I => I -> I => I
        things. -}
 
 GrowR : {I J : Set} -> I => I -> (I * J) => (I * J)
-GrowR CRn = {!!}
+GrowR (Shape <! Position / index) 
+  = (λ z → Shape (fst z)) 
+  <! (λ j z → Position (fst j) z ) 
+  / (λ j s x → index (fst j) s x , snd j) 
 
 -- do the same for "growing the index on the left"
 
 GrowL : {I J : Set} -> I => I -> (J * I) => (J * I)
-GrowL CRn = {!!}
+GrowL (Shape <! Position / index) 
+  = (λ z → Shape (snd z)) 
+  <! (λ j z → Position (snd j) z) 
+  / (λ j s x → fst j , index (snd j) s x)
 
 
 ---------------------------------------------------------------------------
@@ -181,7 +208,7 @@ GrowL CRn = {!!}
 -}
 
 _<+>_ : {I0 I1 : Set} -> I0 => I0 -> I1 => I1 -> (I0 * I1) => (I0 * I1)
-CRn0 <+> CRn1 = {!!}
+CRn0 <+> CRn1 = GrowR CRn0 =+= GrowL CRn1
 
 
 ---------------------------------------------------------------------------
@@ -242,7 +269,7 @@ CPState = {!!}
 
 CPInterface : CPState => CPState
 CPInterface = {!!}
-
+-- ReadState  WriteState
 {- 4.6.2 Secondly, you should implement your copying process, working to your
    interface.
 -}
