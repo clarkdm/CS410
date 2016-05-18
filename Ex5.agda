@@ -111,7 +111,9 @@ paste : forall {X} -> PasteKit X -> [ Tiling X -:> X ]
 paste {X} pk = go where
   open PasteKit pk
   go : [ Tiling X -:> X ]
-  go t = {!!}
+  go (! x) = x
+  go (joinH wl wr wq t t₁) = pasteH wl wr wq {!!} {!!}
+  go (joinV ht hb hq t t₁) =  {!!}
 
 
 ------------------------------------------------------------------------------
