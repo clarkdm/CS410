@@ -27,7 +27,7 @@ open import CS410-Monoid
 
 
 ------------------------------------------------------------------------------
--- CHARACTERS AND STRINGS  -- moved to CS410-Prelude
+-- CHARACTERS AND STRINGS
 ------------------------------------------------------------------------------
 {-
 data List (X : Set) : Set where  -- X scopes over the whole declaration...
@@ -57,7 +57,6 @@ primitive -- these are baked in; they even work!
   primStringToList : String -> List Char
   primStringFromList : List Char -> String
 -}
-
 
 ------------------------------------------------------------------------------
 -- THE TILING MONAD (from lectures)
@@ -113,8 +112,8 @@ paste {X} pk = go where
   open PasteKit pk
   go : [ Tiling X -:> X ]
   go (! x) = x
-  go (joinH wl wr wq t t₁) = pasteH wl wr wq {!!} {!!}
-  go (joinV ht hb hq t t₁) =  {!!}
+  go (joinH wl wr wq t0 t1) = pasteH wl wr wq (go t0 ) (go t1) 
+  go (joinV ht hb hq t0 t1) = pasteV ht hb hq (go t0) (go t1)
 
 
 ------------------------------------------------------------------------------
@@ -148,12 +147,14 @@ matrixPaste {C} = record
   {  pasteH = mPH
   ;  pasteV = mPV
   }  where
-  mPH : {wh : WH} (wl wr : Nat) -> wl +N wr == fst wh ->
-        Matrix C (wl , snd wh) -> Matrix C (wr , snd wh) -> Matrix C wh
+  mPH : {wh : WH} (wl wr : Nat) -> wl +N wr == fst wh -> Matrix C (wl , snd wh) -> Matrix C (wr , snd wh) -> Matrix C wh
   mPH wl wr wq ml mr = {!!}
-  mPV : {wh : WH} (ht hb : Nat) -> ht +N hb == snd wh ->
-        Matrix C (fst wh , ht) -> Matrix C (fst wh , hb) -> Matrix C wh
-  mPV ht hb hq mt mb = {!!}
+  
+
+
+
+  mPV : {wh : WH} (ht hb : Nat) -> ht +N hb == snd wh -> Matrix C (fst wh , ht) -> Matrix C (fst wh , hb) -> Matrix C wh
+  mPV ht hb hq mt mb = {!vec !}
 
 matrixCut : {C : Set} -> CutKit (Matrix C)
 matrixCut {C} = record
@@ -173,7 +174,7 @@ matrixCut {C} = record
 ---------------------------------------------------------------------------
 
 -- We're going to be making displays from coloured text.
-{- moved to prelude
+{-
 data Colour : Set where
   black red green yellow blue magenta cyan white : Colour
 {-# COMPILED_DATA Colour HaskellSetup.Colour
@@ -316,6 +317,9 @@ example4 = pasteV 5 5 refl (fst example23) (snd example23)
 -- COMPARING THE CUT POSITION
 
 data CutComparable (x x' y y' n : Nat) : Set where
+  cutC : y == x -> CutComparable x x' y y' n
+--  cutL : 
+--  cutR :
   -- Give three constructors for this type which characterize the three
   -- possibilities described above whenever
   --   x + x' == n   and   y + y' == n

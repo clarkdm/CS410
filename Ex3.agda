@@ -232,6 +232,9 @@ data THExp (X : HType -> Set) : HType -> Set where
   var : forall {T} -> X T -> THExp X T
   val : forall {T} -> THVal T -> THExp X T
   _+H_ : THExp X hNat -> THExp X hNat -> THExp X hNat
+  _>=H_ :  THExp X hNat -> THExp X  hTwo -> THExp X hTwo
+  ifH_then_else_ : forall {T} -> THExp X hTwo -> THExp X T -> THExp X T -> THExp X T 
+
   -- ??? fill in the other two constructs, typed appropriately
   -- (remember that "if then else" can compute values at any type)
 
@@ -263,9 +266,14 @@ infixr 3 _-:>_
 -- function from variables to values to a function from terms to
 -- values.
 
-eval : {X : HType -> Set} ->
-       [ X -:> THVal ] -> [ THExp X -:> THVal ]
-eval g t = {!!}
+eval : {X : HType -> Set} -> [ X -:> THVal ] -> [ THExp X -:> THVal ]
+eval g (var x) = g x
+eval g (val x) = x
+eval g (t +H t1) = eval g t +N eval g t
+eval g (t >=H t1) = eval g t >=2 eval g t
+eval g (ifH t then t1 else t2) = if eval g t then eval g t1 else eval g t1
+
+
 
 -- Note that the environment is an *index-respecting* function from
 -- variables to values. The index is the type of the variable: you're
@@ -318,7 +326,8 @@ Stack (G / S) = Stack G * THVal S
 -- instructions. It's all the same to us!
 
 fetch : {G : Context} -> Stack G -> [ Var G -:> THVal ]
-fetch g v = {!!}
+fetch g top = snd g
+fetch g (pop v) = fetch (fst g) v
 
 -- An evaluator for expression with more structured variables. We
 -- already know how to evaluate, we just have to explain how to deal
@@ -341,6 +350,9 @@ evalStack g = eval (fetch g)
 
 data HExp' (X : Set) : Set where
   []+H_ _+H[] : HExp X -> HExp' X
+  []>=H_ _>=H[] :  HExp X -> HExp' X
+  ifH[]then_else_ ifH_then[]else_ ifH_then_else[] : HExp X -> HExp X -> HExp' X
+
   -- ??? more constructors here
   -- specifically, you will need a constructor for each way that a
   -- subexpression can fit inside an expression;
@@ -352,14 +364,19 @@ data HExp' (X : Set) : Set where
 _[]<-_ : forall {X} -> HExp' X -> HExp X -> HExp X
 ([]+H r) []<- t = t +H r
 (l +H[]) []<- t = l +H t
+([]>=H r) []<- t = t >=H r
+(l >=H[]) []<- t = l >=H t
+(ifH[]then l else r) []<- t = ifH t then l else r 
+(ifH e then[]else r) []<- t = ifH e then t else r
+(ifH e then l else[]) []<- t = ifH e then l else t
 -- ??? more cases here
 
-
+{-
 data List (X : Set) : Set where  -- X scopes over the whole declaration...
   []    : List X                 -- ...so you can use it here...
   _::_  : X -> List X -> List X  -- ...and here.
 infixr 3 _::_
-
+-}
 -- As we descend down into a term we can keep the pieces we pass along
 -- the way in a list, this is a zipper. For example, given the
 -- expression 3 + (4 + 5) we could go down by going right and right
@@ -391,7 +408,11 @@ rootToHole (t' :: t's) t = t' []<- rootToHole t's t
 
 termFog : {X : HType -> Set}{Y : Set}(varFog : {T : HType} -> X T -> Y) ->
           {T : HType} -> THExp X T -> HExp Y
-termFog vF t = {!!}
+termFog vF (var x) = var (vF x)
+termFog vF (val x) = {!x!}
+termFog vF (t +H t1) = (termFog vF t) +H (termFog vF t1)
+termFog vF (t >=H t1) = (termFog vF t) >=H (termFog vF t1)
+termFog vF (ifH t then t1 else t2) = ifH (termFog vF t) then (termFog vF t1) else (termFog vF t2)
 
 -- Note that it's a local naming convention to call functions which
 -- forget information "fog". When it is foggy, you can see less.

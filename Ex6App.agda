@@ -6,11 +6,11 @@ open import CS410-Vec
 open import CS410-Indexed
 open import CS410-Monoid
 open import Ex6AgdaSetup
-open import Ex5Sol
+-- open import Ex5Sol
 -- open import Ex5
 
-open MonadIx TilingMonadIx
-open FunctorIx (monadFunctorIx TilingMonadIx)
+--open MonadIx TilingMonadIx
+--open FunctorIx (monadFunctorIx TilingMonadIx)
 
 
 ---------------------------------------------------------------------------

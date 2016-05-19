@@ -24,6 +24,7 @@ module Ex4 where
 open import CS410-Prelude
 open import CS410-Indexed
 
+{-
 data List (X : Set) : Set where  -- X scopes over the whole declaration...
   []    : List X                 -- ...so you can use it here...
   _::_  : X -> List X -> List X  -- ...and here.
@@ -40,6 +41,7 @@ infixr 3 _::_
 postulate -- this means that we just suppose the following things exist...
   Char : Set
   String : Set
+
 {-# BUILTIN CHAR Char #-}
 {-# COMPILED_TYPE Char Char #-}
 {-# BUILTIN STRING String #-}
@@ -50,7 +52,7 @@ primitive -- these are baked in; they even work!
   primStringAppend : String -> String -> String
   primStringToList : String -> List Char
   primStringFromList : List Char -> String
-
+-}
 
 ---------------------------------------------------------------------------
 -- WRITING FILES, AN INTERFACE
@@ -265,11 +267,16 @@ ERROR SafeMessage = ErrorC SafeMessage <! ErrorR / errorNext
 -}
 
 CPState : Set
-CPState = {!!}
+CPState =  ReadState * WriteState
 
 CPInterface : CPState => CPState
-CPInterface = {!!}
--- ReadState  WriteState
+CPInterface = (READ <+> WRITE)
+--ERROR
+
+{-
+ ReadState  WriteState
+-}
+
 {- 4.6.2 Secondly, you should implement your copying process, working to your
    interface.
 -}
