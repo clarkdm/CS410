@@ -2,7 +2,7 @@
 {-# IMPORT Ex4Haskell #-}
 {-# IMPORT System.IO #-}
 
-module Ex4 where
+module Ex4 where -- Conor: 8/20
 
 {- I'm sorry I haven't quite finished setting this exercise yet, but by
    the joy of version control, the rest of it can be merged in later
@@ -81,7 +81,7 @@ WriteR .opened closeWrite            = One  -- always works
    state. You should ensure that you can write characters only to
    a successfully opened file, and that you can write as many as
    you want. It should also be possible to insist that a process
-   closes its file. -}
+   closes its file. -} -- Conor: 1/1
 
 writeNext : (j : WriteState)(c : WriteC j) -> WriteR j c -> WriteState
 writeNext .closed (openWrite fileName) r = r
@@ -105,6 +105,7 @@ data ReadState : Set where
   closed : ReadState
 
 {- 4.2 Finish the READ implementation, in accordance with the description. -}
+-- Conor: 2.5/3
 
 -- Commands
 data ReadC : ReadState -> Set where
@@ -120,7 +121,7 @@ data ReadC : ReadState -> Set where
 -- Responses
 ReadR : (j : ReadState)(c : ReadC j) -> Set
 ReadR .closed (openRead fileName) = ReadState
-ReadR .(opened ff) readChar = Two
+ReadR .(opened ff) readChar = Two  -- Conor: the character read should also be given
 ReadR .(opened eof) (closeRead eof) = One
 
 
@@ -146,7 +147,7 @@ READ = ReadC <! ReadR / readNext
        can combine them into one indexed container which lets you choose a
        command from either menu and evolves the state as specified by
        whichever interface offered the chosen command.
--}
+-} -- Conor: 1/1
 
 _=+=_ : {I : Set} -> I => I -> I => I -> I => I
 (Shape <! Position / index) =+= (Shape1 <! Position1 / index1) =
@@ -183,7 +184,7 @@ _=+=_ : {I : Set} -> I => I -> I => I -> I => I
        commands and responses over a state, I * J, where the J is just
        useless information which never changes. (This operation isn't
        super-useful on its own, but it's handy in combination with other
-       things. -}
+       things. -} -- Conor: 2/2
 
 GrowR : {I J : Set} -> I => I -> (I * J) => (I * J)
 GrowR (Shape <! Position / index) 
@@ -207,7 +208,7 @@ GrowL (Shape <! Position / index)
 {- 4.5 Making use of 4.3 and 4.4, show how to combine two interfaces which
        operate independently on separate state: commands from one should
        not affect the state of the other.
--}
+-} -- Conor: 1/1
 
 _<+>_ : {I0 I1 : Set} -> I0 => I0 -> I1 => I1 -> (I0 * I1) => (I0 * I1)
 CRn0 <+> CRn1 = GrowR CRn0 =+= GrowL CRn1
@@ -264,14 +265,14 @@ ERROR SafeMessage = ErrorC SafeMessage <! ErrorR / errorNext
    to escape with an error leaving a file open. You must also make it
    possible to guarantee that your copying process will, error or not, leave
    all files closed.
--}
+-} -- Conor: 0.5/1
 
 CPState : Set
 CPState =  ReadState * WriteState
 
 CPInterface : CPState => CPState
-CPInterface = (READ <+> WRITE)
---ERROR
+CPInterface = (READ <+> WRITE) -- Conor: good start but, yes
+--ERROR -- Conor: is the question
 
 {-
  ReadState  WriteState
@@ -279,7 +280,7 @@ CPInterface = (READ <+> WRITE)
 
 {- 4.6.2 Secondly, you should implement your copying process, working to your
    interface.
--}
+-} -- Conor: 0/3
 
 FinalState : CPState -> Set
 FinalState c = {!!}
@@ -376,7 +377,7 @@ drive D i j ij (c , k) =
    Then you should construct the function which translates
    one SCRIPT C interaction to many C interactions. That's to say,
    implement the "script interpreter".
--}
+-} -- Conor: 0/2
 
 SCRIPT : forall {I} -> (I => I) -> (I => I)
 SCRIPT {I} C = FreeIx C (\ _ -> One) <! ScriptR / ScriptN where
@@ -513,7 +514,7 @@ WH closed        = Dull
 
    Then build the driver, carefully. Remember, when reading, to
    check the end-of-file status as required.
--}
+-} -- Conor: 0/4
 
 HANDLES : CPState -> One -> Set
 HANDLES cps = {!!}
@@ -536,7 +537,7 @@ STATE = Sg CPState \ i ->
 
 {- 4.9 For your chosen final state, you need to explain how to
    issue a message signalling successful completion. The empty
-   string will do, but perhaps you want more. -}
+   string will do, but perhaps you want more. -} -- Conor: 0/1
 
 finalMessage : (i : CPState) -> FinalState i -> String
 finalMessage i x = {!!}
@@ -552,7 +553,7 @@ runCP (i , h , cp)  | do c   = right
     (drive haskellDriver {IterIx CPInterface FinalState} i <> h c)))
 
 {- 4.10 To complete the main program, fill in the starting
-   CPState and its associated handle information. -}
+   CPState and its associated handle information. -} -- Conor: 0/1
    
 main : IO One
 main = mainLoop runCP \ src trg ->
