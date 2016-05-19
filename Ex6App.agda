@@ -1,4 +1,4 @@
-module Ex6App where
+module Ex6App where  -- git indicates that only commenting out of imports has happened 0/15 + 0/5 gives 0/20
 
 open import CS410-Prelude
 open import CS410-Nat
