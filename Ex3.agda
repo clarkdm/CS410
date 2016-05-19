@@ -1,4 +1,5 @@
-module Ex3 where  -- Conor: 5.5/15
+module Ex3 where  -- Conor: 5.5/15 (marked in sem 1 for 3.1-3.4)
+                  -- really 5.5/7 then another 3/8 in sem 2, giving 8.5/15
 
 ----------------------------------------------------------------------------
 -- EXERCISE 3 -- MONADS FOR HUTTON'S RAZOR
@@ -206,7 +207,7 @@ interpret {X} = go where
   go (t >=H t₁) E = {!!}
   go (ifH t then t₁ else t₂) E = {!!}
 ----------------------------------------------------------------------------
--- ??? 3.5 Typed Hutton's Razor                               (score: ? / 1)
+-- ??? 3.5 Typed Hutton's Razor                               (score: 0.5 / 1)
 ----------------------------------------------------------------------------
 
 -- Labelling the expressions with their types gives strong guarantees
@@ -232,7 +233,7 @@ data THExp (X : HType -> Set) : HType -> Set where
   var : forall {T} -> X T -> THExp X T
   val : forall {T} -> THVal T -> THExp X T
   _+H_ : THExp X hNat -> THExp X hNat -> THExp X hNat
-  _>=H_ :  THExp X hNat -> THExp X  hTwo -> THExp X hTwo
+  _>=H_ :  THExp X hNat -> THExp X  hTwo {- Conor: hNat here! -} -> THExp X hTwo
   ifH_then_else_ : forall {T} -> THExp X hTwo -> THExp X T -> THExp X T -> THExp X T 
 
   -- ??? fill in the other two constructs, typed appropriately
@@ -240,7 +241,7 @@ data THExp (X : HType -> Set) : HType -> Set where
 
 
 ----------------------------------------------------------------------------
--- ??? 3.6 Well Typed Programs Don't Go Wrong                 (score: ? / 1)
+-- ??? 3.6 Well Typed Programs Don't Go Wrong                 (score: 0 / 1)
 ----------------------------------------------------------------------------
 
 -- notation for functions betweeen indexed sets (e.g. indexed by types)
@@ -272,7 +273,7 @@ eval g (val x) = x
 eval g (t +H t1) = eval g t +N eval g t
 eval g (t >=H t1) = eval g t >=2 eval g t
 eval g (ifH t then t1 else t2) = if eval g t then eval g t1 else eval g t1
-
+  -- Conor: all three step cases get the wrong answers
 
 
 -- Note that the environment is an *index-respecting* function from
@@ -284,7 +285,7 @@ eval g (ifH t then t1 else t2) = if eval g t then eval g t1 else eval g t1
 
 
 ----------------------------------------------------------------------------
--- ??? 3.7 Variable Contexts                                  (score: ? / 1)
+-- ??? 3.7 Variable Contexts                                  (score: 1 / 1)
 ----------------------------------------------------------------------------
 
 -- backwards lists.
@@ -339,7 +340,7 @@ evalStack g = eval (fetch g)
 
 
 ----------------------------------------------------------------------------
--- ??? 3.8 Terms-With-One-Hole                                (score: ? / 1)
+-- ??? 3.8 Terms-With-One-Hole                                (score: 1 / 1)
 ----------------------------------------------------------------------------
 
 -- Next, we build some kit that we'll use to present type errors.
@@ -397,7 +398,7 @@ rootToHole (t' :: t's) t = t' []<- rootToHole t's t
 
 
 ----------------------------------------------------------------------------
--- ??? 3.9 Forgetting Types                                   (score: ? / 1)
+-- ??? 3.9 Forgetting Types                                   (score: 0.5 / 1)
 ----------------------------------------------------------------------------
 
 -- SUSPICION: why would we want to?
@@ -409,7 +410,7 @@ rootToHole (t' :: t's) t = t' []<- rootToHole t's t
 termFog : {X : HType -> Set}{Y : Set}(varFog : {T : HType} -> X T -> Y) ->
           {T : HType} -> THExp X T -> HExp Y
 termFog vF (var x) = var (vF x)
-termFog vF (val x) = {!x!}
+termFog vF (val x) = {!x!}  -- Conor: need to find the type
 termFog vF (t +H t1) = (termFog vF t) +H (termFog vF t1)
 termFog vF (t >=H t1) = (termFog vF t) >=H (termFog vF t1)
 termFog vF (ifH t then t1 else t2) = ifH (termFog vF t) then (termFog vF t1) else (termFog vF t2)
@@ -422,7 +423,7 @@ termFog vF (ifH t then t1 else t2) = ifH (termFog vF t) then (termFog vF t1) els
 
 
 ----------------------------------------------------------------------------
--- ??? 3.10 A Typechecking View                               (score: ? / 3)
+-- ??? 3.10 A Typechecking View                               (score: 0 / 3)
 ----------------------------------------------------------------------------
 
 -- We finish by building a typechecker which will allow us to detect
