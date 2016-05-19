@@ -17,7 +17,7 @@
 -- then come back to it after the exams and apply polish.
 ------------------------------------------------------------------------------
 
-module Ex5 where -- Conor: 1.5/20
+module Ex5 where -- Conor: 1.5/15
 
 open import CS410-Prelude
 open import CS410-Nat
