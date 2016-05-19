@@ -17,7 +17,7 @@
 -- then come back to it after the exams and apply polish.
 ------------------------------------------------------------------------------
 
-module Ex5 where
+module Ex5 where -- Conor: 1.5/20
 
 open import CS410-Prelude
 open import CS410-Nat
@@ -103,7 +103,7 @@ record PasteKit (X : WH -> Set) : Set where
     pasteV :  {wh : WH}(ht hb : Nat)(hq : ht +N hb == snd wh) ->
               X (fst wh , ht) ->  X (fst wh , hb) -> X wh
 
--- ??? 5.1 (1 mark)
+-- ??? 5.1 (1 mark) -- Conor: 1/1
 -- Show that if you have a PasteKit for X tiles, you can turn a
 -- Tiling X into one big X.
 
@@ -138,7 +138,7 @@ record CutKit (X : WH -> Set) : Set where
 Matrix : Set -> WH -> Set
 Matrix C (w , h) = Vec (Vec C w) h
 
--- ??? 5.2 (2 marks)
+-- ??? 5.2 (2 marks) -- 0/2
 -- Equip matrices with a PasteKit and a CutKit. Try to make good use of
 -- the operations developed for vectors.
 
@@ -313,7 +313,7 @@ example4 = pasteV 5 5 refl (fst example23) (snd example23)
 --
 -- HINT: The next three tasks go together.
 
--- ??? 5.3.1 (1 mark)
+-- ??? 5.3.1 (1 mark) -- Conor: 0.5/1
 -- COMPARING THE CUT POSITION
 
 data CutComparable (x x' y y' n : Nat) : Set where
@@ -344,7 +344,7 @@ sucInject refl = refl
 sucRespect : {m n : Nat} -> m == n -> suc m == suc n
 sucRespect refl = refl
 
--- ??? 5.3.2 (1 mark)
+-- ??? 5.3.2 (1 mark) -- Conor: 0/1
 -- Show that whenever you have two ways to express the same n as a sum,
 -- you can always deliver the CutComparable evidence.
 
@@ -353,7 +353,7 @@ cutCompare : (x x' y y' n : Nat) -> x +N x' == n -> y +N y' == n ->
 cutCompare x x' y y' n xq yq = {!!}
 
 
--- ??? 5.3.3 (2 marks)
+-- ??? 5.3.3 (2 marks) -- Conor: 0/2
 -- A CUTKIT FOR TILINGS
 
 -- Now, show that you can construct a CutKit for Tiling X, given a CutKit
@@ -380,7 +380,7 @@ tilingCut {X} ck = record { cutH = cH ; cutV = cV } where
 -- SUPERIMPOSITION
 ---------------------------------------------------------------------------
 
--- ??? 5.4 (2 marks)
+-- ??? 5.4 (2 marks) -- Conor: 0/2
 -- Suppose you have a tiling made of X tiles in front of a tiling made of
 -- Y tiles.  Suppose you have a CutKit for Y. Suppose you know how to
 -- superimpose *one* X tile on a Y tiling to make a Z tiling. You should be
@@ -404,7 +404,7 @@ super {X}{Y}{Z} ck m = go where
 -- HOLES
 ---------------------------------------------------------------------------
 
--- ??? 5.5 (2 marks)
+-- ??? 5.5 (2 marks) -- Conor: 0/2
 -- In order to build up displays in layers, we will need to work with
 -- tilings where one sort of primitive tile is, in fact, a hole!
 
@@ -478,7 +478,7 @@ data Change (wh : WH) : Set where
 -- that content. So a Tiling Change tells you the difference between the
 -- old layer and the new layer.
 
--- ??? 5.6 (1 mark)
+-- ??? 5.6 (1 mark) -- Conor: 0/1
 -- You should be able to compute the changed layer given the change and the old
 -- layer. Hint: This, also, is a job for super.
 
@@ -490,7 +490,7 @@ changed = super {!!} {!!}
 -- UPDATA
 ---------------------------------------------------------------------------
 
--- ??? 5.7 (3 marks)
+-- ??? 5.7 (3 marks) -- Conor: 0/3
 -- A notion related to "Change" is "Updata", but they're subtly different:
 --   the actual content in a change is just the new stuff, and we've seen we
 --     can grab any old parts from the old layer;
